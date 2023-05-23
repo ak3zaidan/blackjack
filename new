@@ -5,11 +5,12 @@ include irvine32.inc
 maxHand = 21
 dealerStop = 17
 
-getRandomNum MACRO location1
+getRandomNum MACRO location1, user
 	mov eax, 13; upper bound
 	call RandomRange; lower bound
 	add eax, 2; so its between 2 and 14
 	mov location1, eax; move value into the array
+	add user, eax
 ENDM
 
 .data
@@ -40,6 +41,8 @@ tempCount DWORD 0
 printBetty BYTE "Current Bet: ", 0
 printDealerHandTitle BYTE "Dealer Hand: ", 0
 printMyHandTitle BYTE "My Hand: ", 0
+totalDealer DWORD 0
+totalPlayer DWORD 0
 
 .code
 main proc
@@ -117,7 +120,7 @@ game ENDP
 
 dealerFirst PROC							; Adds a card into the first slot in the dealer array
 	mov ebx, dealerCount
-	getRandomNum dealerArr[ebx]				; Puts a random number into the dealerArray!
+	getRandomNum dealerArr[ebx], totalDealer			; Puts a random number into the dealerArray!
 	add dealerCount, 4						; Increases the dealers lenght by 4
 
 	ret
@@ -128,9 +131,9 @@ dealerFirst ENDP
 humanMove PROC
 	getRandom :
 		mov ebx, playerCount; move offset of the array into ebx
-		getRandomNum myArr[ebx]
+		getRandomNum myArr[ebx], totalPlayer
 		add playerCount, 4; move offset
-		getRandomNum myArr[ebx]
+		getRandomNum myArr[ebx], totalPlayer
 		add playerCount, 4
 
 ret
