@@ -49,6 +49,12 @@ roundSpent DWORD ?
 playerCount DWORD 0
 dealerCount DWORD 0
 
+
+tempCount DWORD 0
+printBetty BYTE "Current Bet: ", 0
+printDealerHandTitle BYTE "Dealer Hand: ", 0
+printMyHandTitle BYTE "My Hand: ", 0
+
 .code
 main proc
 
@@ -157,6 +163,37 @@ compareHands PROC
 	ret
 compareHands ENDP
 
+printHands PROC
+
+	mov EDX, OFFSET printBetty
+	call writeString
+	mov EAX, inputRoundDollar
+	call writeInt
+	call crlf
+
+	mov EDX, OFFSET printDealerHandTitle
+	call writeString
+	mov tempCount, 0
+
+	printDealer:
+		mov EBX, tempCount
+		printCard dealerArr[ebx]
+		add tempCount, 4
+		cmp tempCount, dealerCount
+		jne printDealer
+
+	mov tempCount, 0
+
+	printPlayer:
+		mov EBX, tempCount
+		printCard myArr[ebx]
+		add tempCount, 4
+		cmp tempCount, playerCount
+		jne printPlayer
+
+
+ret
+printHands ENDP
 
 
 floatingExample PROC
