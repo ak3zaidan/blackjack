@@ -19,6 +19,10 @@ main proc
   exit                 
 main endp
 
+
+
+
+
 floatingExample PROC
 	mov edx, offset greeting
 	invoke WriteString;				print the greeting
