@@ -30,12 +30,14 @@ betAmount DWORD ?
 currentMoney DWORD ?
 enterStartMoneyText BYTE "How much money are you gambling with today: ", 0
 myArr DWORD 21 DUP(0)
+dealerArr DWORD 21 DUP(0)
 
 playAgain BYTE "Would you like to play a hand (Enter 1 for yes, Any other number is no): ", 0
 inputRoundDollar BYTE "Enter bet: ", 0
 betInvalid BYTE "Either bet is too above your budget or is negative", 0
 roundSpent DWORD ?
-count DWORD ?
+humanCount DWORD ?
+dealerCount DWORD ?
 
 .code
 main proc
