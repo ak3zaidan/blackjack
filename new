@@ -1,4 +1,4 @@
-include irvine32.inc    
+include irvine32.inc
 
 .stack 4096
 
@@ -8,53 +8,94 @@ dealerStop = 17
 .data
 greeting byte "US dollars to Canadian by Ahmed Zaidan and Blaise", 13, 10, 0
 myMessage2 BYTE "Enter the amount of canadian dollars you want to convert to US dollars: ", 32, 0
-myMessage5 BYTE " candian dollars converted to US dollars is: ", 0                
+myMessage5 BYTE " candian dollars converted to US dollars is: ", 0
 dist REAL8 ?
 distConst REAL8 0.740926
 kmPerMile REAL8 ?
 betAmount DWORD ?
-enterStartMoney DWORD ?
+currentMoney DWORD ?
 enterStartMoneyText BYTE "How much money are you gambling with today: ", 0
-userArr DWORD 21 DUP (0)
+userArr DWORD 21 DUP(0)
+
+playAgain BYTE "Would you like to play a hand (Enter 1 for yes, Any other number is no): ", 0
+inputRoundDollar BYTE "Enter bet: ", 0
+betInvalid BYTE "Either bet is too above your budget or is negative", 0
+roundSpent DWORD ?
+
 
 .code
 main proc
-  
-  getUserInfo:
-  push OFFSET enterStartMoney
-  call userInput
-  
-  playGame:
-  call game
-  
-  
 
-  fpuExample:
-	call floatingExample
+getUserInfo :
+push OFFSET currentMoney
+call userInput
 
-  exit                 
+playGame :
+call game
+
+
+
+fpuExample:
+call floatingExample
+
+exit
 main endp
 
 userInput PROC
-	push EBP							
-	mov EBP, ESP
-	mov esi, [ebp + 8]
-	mov EDX, OFFSET enterStartMoneyText
-	call writeString
-	call readInt
-	mov [esi], eax			
-	pop EBP
-	
+push EBP
+mov EBP, ESP
+mov esi, [ebp + 8]
+mov EDX, OFFSET enterStartMoneyText
+call writeString
+call readInt
+mov[esi], eax
+pop EBP
+
 
 userInput ENDP
 
-game PROC ; asks if you want to play: ask for money input, 
+game PROC; asks if you want to play : ask for money input,
+mov EDX, OFFSET playAgain
+call writeString
+call readInt
+call crlf
+cmp EAX, 1
+jne endOfProgram
+
+jmp getRoundMoney
+
+invalidInput: 
+mov EDX, OFFSET betInvalid
+call writeString
+call crlf
+
+
+getRoundMoney:
+mov EDX, OFFSET inputRoundDollar
+call writeString
+call readInt
+call crlf
+
+cmp EAX, currentMoney
+jge invalidInput
+cmp EAX, 0
+jle invalidInput
+
+mov roundSpent, EAX
 
 
 
-game ENDP 
 
-dealerFirst PROC 
+
+
+
+
+endOfProgram:
+
+
+game ENDP
+
+dealerFirst PROC
 
 dealerFirst ENDP
 
@@ -73,29 +114,29 @@ compareHands ENDP
 
 
 floatingExample PROC
-	mov edx, offset greeting
-	invoke WriteString;				print the greeting
-	call Crlf						; print newline	
-	finit							;//iniit the fpu
-	mov edx, offset myMessage2
-    invoke WriteString				; print message2
-	call readFloat
-	fst dist
-	fstp st(0)						;//clear
-	fld dist						;//load the distance into the stack
-	fld distConst					;//load the distance constant for conversion
-	fmul							
-	fst kmPerMile					;//pop into this var
-	fstp st(0)						;//clear
-	call Crlf						; print newline
-	fld dist
-	call writeFloat
-	fstp st(0)					
-    mov edx, offset myMessage5
-    invoke WriteString
-    fld kmPerMile
-    invoke WriteFloat
-	fstp st(0)
+mov edx, offset greeting
+invoke WriteString;				print the greeting
+call Crlf; print newline
+finit;//iniit the fpu
+mov edx, offset myMessage2
+invoke WriteString; print message2
+call readFloat
+fst dist
+fstp st(0);//clear
+fld dist;//load the distance into the stack
+fld distConst;//load the distance constant for conversion
+fmul
+fst kmPerMile;//pop into this var
+fstp st(0);//clear
+call Crlf; print newline
+fld dist
+call writeFloat
+fstp st(0)
+mov edx, offset myMessage5
+invoke WriteString
+fld kmPerMile
+invoke WriteFloat
+fstp st(0)
 floatingExample ENDP
 
 end main
