@@ -19,9 +19,15 @@ userArr DWORD 21 DUP (0)
 
 .code
 main proc
-
+  
+  getUserInfo:
   push OFFSET enterStartMoney
   call userInput
+  
+  playGame:
+  call game
+  
+  
 
   fpuExample:
 	call floatingExample
@@ -43,6 +49,8 @@ userInput PROC
 userInput ENDP
 
 game PROC ; asks if you want to play: ask for money input, 
+
+
 
 game ENDP 
 
