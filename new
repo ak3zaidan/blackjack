@@ -13,6 +13,8 @@ dist REAL8 ?
 distConst REAL8 0.740926
 kmPerMile REAL8 ?
 betAmount DWORD ?
+enterStartMoney DWORD ?
+enterStartMoneyText BYTE "How much money are you gambling with today: ", 0
 
 .code
 main proc
@@ -24,8 +26,15 @@ main proc
 main endp
 
 userInput PROC
+	mov EDX, OFFSET enterStartMoneyTest
+	call writeString
+	
 
 userInput ENDP
+
+game PROC ; asks if you want to play: ask for money input, 
+
+game ENDP 
 
 dealerFirst PROC 
 
