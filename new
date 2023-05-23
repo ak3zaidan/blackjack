@@ -4,17 +4,27 @@ include irvine32.inc
 
 maxHand = 21
 dealerStop = 17
+
+
+
 getRandomNum MACRO location1
+	mov eax, 13							; upper bound
+	call RandomRange; lower bound
+	add eax, 2; so its between 2 and 14
+	mov location1, eax; move value into the array
+	call writeInt
+ENDM
 
-mov eax, 13; upper bound
-call RandomRange; lower bound
-add eax, 2; so its between 2 and 14
+printCard MACRO number
+	mov eax, number						;move the number into eax
+	cmp eax, 11
+	jl noChange							;if under
 
-mov location1, eax; move value into the array
 
-mov EAX, 0
-mov EAX, location1
-call writeInt
+	noChange:
+
+	change: 
+
 
 ENDM
 
@@ -36,8 +46,8 @@ playAgain BYTE "Would you like to play a hand (Enter 1 for yes, Any other number
 inputRoundDollar BYTE "Enter bet: ", 0
 betInvalid BYTE "Either bet is too above your budget or is negative", 0
 roundSpent DWORD ?
-humanCount DWORD ?
-dealerCount DWORD ?
+playerCount DWORD 0
+dealerCount DWORD 0
 
 .code
 main proc
@@ -118,12 +128,13 @@ dealerFirst ENDP
 
 humanMove PROC
 	getRandom :
-		mov ebx, count; move offset of the array into ebx
+		mov ebx, playerCount				; move offset of the array into ebx
 		getRandomNum myArr[ebx]
 
-		add count, 4; move offset
+		add playerCount, 4					; move offset
 		getRandomNum myArr[ebx]
 	showUser:
+		
 	ret
 humanMove ENDP
 
@@ -144,7 +155,7 @@ compareHands ENDP
 
 floatingExample PROC
 	mov edx, offset greeting
-	invoke WriteString;				print the greeting
+	invoke WriteString				
 	call Crlf; print newline
 	finit;//iniit the fpu
 	mov edx, offset myMessage2
