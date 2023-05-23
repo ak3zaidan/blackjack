@@ -19,7 +19,25 @@ main proc
   exit                 
 main endp
 
+userInput PROC
 
+userInput ENDP
+
+dealerFirst PROC 
+
+dealerFirst ENDP
+
+humanMove PROC
+
+humanMove ENDP
+
+dealerMove PROC
+
+dealerMove ENDP
+
+compareHands PROC
+
+compareHands ENDP
 
 
 
