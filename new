@@ -120,6 +120,11 @@ game ENDP
 
 
 dealerFirst PROC
+	mov ebx, dealerCount
+	getRandomNum dealerArr[dealerCount] ; Puts a random number into the dealerArray!
+	add dealerCount, 4 ; Increases the dealers lenght by 4 
+
+	; ADD THE MACRO TO PRINT THE DEALERS HAND!!!! 
 
 	ret
 dealerFirst ENDP
