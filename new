@@ -43,97 +43,88 @@ dealerCount DWORD ?
 main proc
 
 
-call randomize
+	call randomize
 
-getUserInfo :
-push OFFSET currentMoney
-call userInput
+	getUserInfo:
+		push OFFSET currentMoney
+		call userInput
 
-playGame :
-call game
+	playGame:
+		call game
 
-
-
-fpuExample:
-call floatingExample
+	fpuExample:
+		call floatingExample
 
 exit
 main endp
 
 userInput PROC
-push EBP
-mov EBP, ESP
-mov esi, [ebp + 8]
-mov EDX, OFFSET enterStartMoneyText
-call writeString
-call readInt
-mov[esi], eax
-pop EBP
-
-ret
+	push EBP
+	mov EBP, ESP
+	mov esi, [ebp + 8]
+	mov EDX, OFFSET enterStartMoneyText
+	call writeString
+	call readInt
+	mov[esi], eax
+	pop EBP
+	ret
 userInput ENDP
 
-game PROC; asks if you want to play : ask for money input,
-mov EDX, OFFSET playAgain
-call writeString
-call readInt
-call crlf
-cmp EAX, 1
-jne endOfProgram
+game PROC								; asks if you want to play : ask for money input,
+	mov EDX, OFFSET playAgain
+	call writeString
+	call readInt
+	call crlf
+	cmp EAX, 1
+	jne endOfProgram
 
-jmp getRoundMoney
+	jmp getRoundMoney
 
-invalidInput :
-mov EDX, OFFSET betInvalid
-call writeString
-call crlf
-
-
-getRoundMoney :
-mov EDX, OFFSET inputRoundDollar
-call writeString
-call readInt
-call crlf
-
-cmp EAX, currentMoney
-jg invalidInput
-cmp EAX, 0
-jle invalidInput
-
-mov roundSpent, EAX
-
-call humanMove
+	invalidInput :
+		mov EDX, OFFSET betInvalid
+		call writeString
+		call crlf
 
 
+	getRoundMoney :
+		mov EDX, OFFSET inputRoundDollar
+		call writeString
+		call readInt
+		call crlf
+
+		cmp EAX, currentMoney
+		jg invalidInput
+		cmp EAX, 0
+		jle invalidInput
+
+		mov roundSpent, EAX
+
+		call humanMove
 
 
+	endOfProgram:
+		ret
 
-endOfProgram:
-
-ret
 game ENDP
+
+
 
 dealerFirst PROC
 
-ret
+	ret
 dealerFirst ENDP
 
 
 
 humanMove PROC
-getRandom :
+	getRandom :
+		mov ebx, count; move offset of the array into ebx
+		getRandomNum myArr[ebx]
 
-mov ebx, count; move offset of the array into ebx
-getRandomNum myArr[ebx]
-
-add count, 4; move offset
-getRandomNum myArr[ebx]
-
-
-storeArr:
-
-showUser:
-ret
+		add count, 4; move offset
+		getRandomNum myArr[ebx]
+	showUser:
+	ret
 humanMove ENDP
 
 
@@ -141,40 +132,40 @@ humanMove ENDP
 
 dealerMove PROC
 
-ret
+	ret
 dealerMove ENDP
 
 compareHands PROC
 
-ret
+	ret
 compareHands ENDP
 
 
 
 floatingExample PROC
-mov edx, offset greeting
-invoke WriteString;				print the greeting
-call Crlf; print newline
-finit;//iniit the fpu
-mov edx, offset myMessage2
-invoke WriteString; print message2
-call readFloat
-fst dist
-fstp st(0);//clear
-fld dist;//load the distance into the stack
-fld distConst;//load the distance constant for conversion
-fmul
-fst kmPerMile;//pop into this var
-fstp st(0);//clear
-call Crlf; print newline
-fld dist
-call writeFloat
-fstp st(0)
-mov edx, offset myMessage5
-invoke WriteString
-fld kmPerMile
-invoke WriteFloat
-fstp st(0)
+	mov edx, offset greeting
+	invoke WriteString;				print the greeting
+	call Crlf; print newline
+	finit;//iniit the fpu
+	mov edx, offset myMessage2
+	invoke WriteString; print message2
+	call readFloat
+	fst dist
+	fstp st(0);//clear
+	fld dist;//load the distance into the stack
+	fld distConst;//load the distance constant for conversion
+	fmul
+	fst kmPerMile;//pop into this var
+	fstp st(0);//clear
+	call Crlf; print newline
+	fld dist
+	call writeFloat
+	fstp st(0)
+	mov edx, offset myMessage5
+	invoke WriteString
+	fld kmPerMile
+	invoke WriteFloat
+	fstp st(0)
 floatingExample ENDP
 
 end main
