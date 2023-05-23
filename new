@@ -12,6 +12,7 @@ myMessage5 BYTE " candian dollars converted to US dollars is: ", 0
 dist REAL8 ?
 distConst REAL8 0.740926
 kmPerMile REAL8 ?
+betAmount DWORD ?
 
 .code
 main proc
