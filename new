@@ -4,9 +4,17 @@ include irvine32.inc
 
 maxHand = 21
 dealerStop = 17
-
 getRandomNum MACRO location1
-  
+
+mov eax, 13; upper bound
+call RandomRange; lower bound
+add eax, 2; so its between 2 and 14
+
+mov location1, eax; move value into the array
+
+mov EAX, 0
+mov EAX, location1
+call writeInt
 
 ENDM
 
@@ -21,7 +29,7 @@ kmPerMile REAL8 ?
 betAmount DWORD ?
 currentMoney DWORD ?
 enterStartMoneyText BYTE "How much money are you gambling with today: ", 0
-userArr DWORD 21 DUP(0)
+myArr DWORD 21 DUP(0)
 
 playAgain BYTE "Would you like to play a hand (Enter 1 for yes, Any other number is no): ", 0
 inputRoundDollar BYTE "Enter bet: ", 0
@@ -31,6 +39,9 @@ count DWORD ?
 
 .code
 main proc
+
+
+call randomize
 
 getUserInfo :
 push OFFSET currentMoney
@@ -70,27 +81,26 @@ jne endOfProgram
 
 jmp getRoundMoney
 
-invalidInput: 
+invalidInput :
 mov EDX, OFFSET betInvalid
 call writeString
 call crlf
 
 
-getRoundMoney:
+getRoundMoney :
 mov EDX, OFFSET inputRoundDollar
 call writeString
 call readInt
 call crlf
 
 cmp EAX, currentMoney
-jge invalidInput
+jg invalidInput
 cmp EAX, 0
 jle invalidInput
 
 mov roundSpent, EAX
 
-
-
+call humanMove
 
 
 
@@ -109,27 +119,19 @@ dealerFirst ENDP
 
 
 humanMove PROC
-	getRandom:
-		mov eax, 13				;upper bound
-		call RandomRange		;lower bound
-		add eax, 2				;so its between 2 and 14
-		
-		mov ebx, count			;move offset of the array into ebx
-		mov myArr[ebx], eax		;move value into the array
+getRandom :
 
-		add count, 4			;move offset
+mov ebx, count; move offset of the array into ebx
+getRandomNum myArr[ebx]
 
-		mov eax, 13				;upper bound
-		call RandomRange		;lower bound
-		add eax, 2				;so its between 2 and 14
-		
-		mov ebx, count			;move offset of the array into ebx
-		mov myArr[ebx], eax		;move value into the array
-		
-	storeArr:
+add count, 4; move offset
+getRandomNum myArr[ebx]
 
-	showUser: 
-	ret
+
+storeArr:
+
+showUser:
+ret
 humanMove ENDP
 
 
