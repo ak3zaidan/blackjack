@@ -2,6 +2,9 @@ include irvine32.inc
 
 .stack 4096
 
+maxHand = 21
+dealerStop = 17
+
 .data
 greeting byte "US dollars to Canadian by Ahmed Zaidan and Blaise", 13, 10, 0
 myMessage2 BYTE "Enter the amount of canadian dollars you want to convert to US dollars: ", 32, 0
