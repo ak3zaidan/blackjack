@@ -1,0 +1,48 @@
+include irvine32.inc    
+
+.stack 4096
+
+.data
+greeting byte "US dollars to Canadian by Ahmed Zaidan and Blaise", 13, 10, 0
+myMessage2 BYTE "Enter the amount of canadian dollars you want to convert to US dollars: ", 32, 0
+myMessage5 BYTE " candian dollars converted to US dollars is: ", 0                
+dist REAL8 ?
+distConst REAL8 0.740926
+kmPerMile REAL8 ?
+
+.code
+main proc
+
+  fpuExample:
+	call floatingExample
+
+  exit                 
+main endp
+
+floatingExample PROC
+	mov edx, offset greeting
+	invoke WriteString;				print the greeting
+	call Crlf						; print newline	
+	finit							;//iniit the fpu
+	mov edx, offset myMessage2
+    invoke WriteString				; print message2
+	call readFloat
+	fst dist
+	fstp st(0)						;//clear
+	fld dist						;//load the distance into the stack
+	fld distConst					;//load the distance constant for conversion
+	fmul							
+	fst kmPerMile					;//pop into this var
+	fstp st(0)						;//clear
+	call Crlf						; print newline
+	fld dist
+	call writeFloat
+	fstp st(0)					
+    mov edx, offset myMessage5
+    invoke WriteString
+    fld kmPerMile
+    invoke WriteFloat
+	fstp st(0)
+floatingExample ENDP
+
+end main
