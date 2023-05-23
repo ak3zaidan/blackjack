@@ -27,7 +27,7 @@ playAgain BYTE "Would you like to play a hand (Enter 1 for yes, Any other number
 inputRoundDollar BYTE "Enter bet: ", 0
 betInvalid BYTE "Either bet is too above your budget or is negative", 0
 roundSpent DWORD ?
-
+count DWORD ?
 
 .code
 main proc
@@ -106,10 +106,34 @@ dealerFirst PROC
 ret
 dealerFirst ENDP
 
-humanMove PROC
 
-ret
+
+humanMove PROC
+	getRandom:
+		mov eax, 13				;upper bound
+		call RandomRange		;lower bound
+		add eax, 2				;so its between 2 and 14
+		
+		mov ebx, count			;move offset of the array into ebx
+		mov myArr[ebx], eax		;move value into the array
+
+		add count, 4			;move offset
+
+		mov eax, 13				;upper bound
+		call RandomRange		;lower bound
+		add eax, 2				;so its between 2 and 14
+		
+		mov ebx, count			;move offset of the array into ebx
+		mov myArr[ebx], eax		;move value into the array
+		
+	storeArr:
+
+	showUser: 
+	ret
 humanMove ENDP
+
+
+
 
 dealerMove PROC
 
