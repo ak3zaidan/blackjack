@@ -51,7 +51,7 @@ call readInt
 mov[esi], eax
 pop EBP
 
-
+ret
 userInput ENDP
 
 game PROC; asks if you want to play : ask for money input,
@@ -92,23 +92,27 @@ mov roundSpent, EAX
 
 endOfProgram:
 
-
+ret
 game ENDP
 
 dealerFirst PROC
 
+ret
 dealerFirst ENDP
 
 humanMove PROC
 
+ret
 humanMove ENDP
 
 dealerMove PROC
 
+ret
 dealerMove ENDP
 
 compareHands PROC
 
+ret
 compareHands ENDP
 
 
