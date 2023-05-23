@@ -15,6 +15,7 @@ kmPerMile REAL8 ?
 betAmount DWORD ?
 enterStartMoney DWORD ?
 enterStartMoneyText BYTE "How much money are you gambling with today: ", 0
+userArr DWORD 21 DUP (0)
 
 .code
 main proc
