@@ -19,6 +19,9 @@ enterStartMoneyText BYTE "How much money are you gambling with today: ", 0
 .code
 main proc
 
+  push OFFSET enterStartMoney
+  call userInput
+
   fpuExample:
 	call floatingExample
 
@@ -26,8 +29,14 @@ main proc
 main endp
 
 userInput PROC
-	mov EDX, OFFSET enterStartMoneyTest
+	push EBP							
+	mov EBP, ESP
+	mov esi, [ebp + 8]
+	mov EDX, OFFSET enterStartMoneyText
 	call writeString
+	call readInt
+	mov [esi], eax			
+	pop EBP
 	
 
 userInput ENDP
