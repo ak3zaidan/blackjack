@@ -183,20 +183,18 @@ call crlf
 mov EDX, OFFSET printMyHandTitle
 call writeString
 
-
-
-mov tempCount, 0
-
+mov tempCount, -4
+mov ECX, playerCount
+sub ECX, 4
 printPlayer:
 mov EBX, tempCount
-mov EAX, [myArr[ebx]]
-call writeInt
-; push[myArr[ebx]]
-; call printCard
+
+push myArr[ebx]
+call printCard
 add tempCount, 4
-mov ECX, tempCount
-cmp ECX, playerCount
-jle printPlayer
+mov EAX, tempCount
+cmp tempCount, ECX
+jl printPlayer
 
 call crlf
 call crlf
@@ -215,6 +213,8 @@ mov esi, [ebp + 8]; get the value from the stack and store it in eax
 mov eax, esi
 
 pop EBP
+
+
 cmp eax, 11
 jl noChange; if under 11 the number is the card
 jge change; if 11 the card is not the number
