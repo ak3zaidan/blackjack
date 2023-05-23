@@ -151,31 +151,48 @@ compareHands ENDP
 
 printHands PROC
 
-	mov EDX, OFFSET printBetty
-	call writeString
-	mov EAX, inputRoundDollar
-	call writeInt
-	call crlf
+mov EDX, OFFSET printBetty
+call writeString
+mov EAX, roundSpent
+call writeInt
+call crlf
 
-	mov EDX, OFFSET printDealerHandTitle
-	call writeString
-	mov tempCount, 0
+mov EDX, OFFSET printDealerHandTitle
+call writeString
+mov tempCount, 0
 
-	printDealer:
-		mov EBX, tempCount
-		printCard dealerArr[ebx]
-		add tempCount, 4
-		cmp tempCount, dealerCount
-		jne printDealer
+printDealer:
+mov EBX, tempCount
 
-	mov tempCount, 0
+push[dealerArr[ebx]]
+call printCard
 
-	printPlayer:
-		mov EBX, tempCount
-		printCard myArr[ebx]
-		add tempCount, 4
-		cmp tempCount, playerCount
-		jne printPlayer
+add tempCount, 4
+mov ECX, tempCount
+cmp ECX, dealerCount
+jne printDealer
+
+mov tempCount, 0
+
+call crlf 
+call crlf 
+
+mov EDX, OFFSET printMyHandTitle
+call writeString
+
+
+
+printPlayer:
+mov EBX, tempCount
+push [myArr[ebx]]
+call printCard
+add tempCount, 4
+mov ECX, tempCount
+cmp ECX, playerCount
+jne printPlayer
+
+call crlf
+call crlf
 
 
 ret
