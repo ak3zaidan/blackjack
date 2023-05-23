@@ -109,7 +109,8 @@ game PROC								; asks if you want to play : ask for money input,
 
 		mov roundSpent, EAX
 
-		call humanMove
+		call dealerFirst ; Gets the first card for the dealer
+		call humanMove ; Gets the move from the humans.
 
 
 	endOfProgram:
@@ -119,9 +120,9 @@ game ENDP
 
 
 
-dealerFirst PROC
+dealerFirst PROC ; Adds a card into the first slot in the dealer array
 	mov ebx, dealerCount
-	getRandomNum dealerArr[dealerCount] ; Puts a random number into the dealerArray!
+	getRandomNum dealerArr[ebx] ; Puts a random number into the dealerArray!
 	add dealerCount, 4 ; Increases the dealers lenght by 4 
 
 	; ADD THE MACRO TO PRINT THE DEALERS HAND!!!! 
