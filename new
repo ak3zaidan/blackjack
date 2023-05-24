@@ -11,6 +11,7 @@ getRandomNum MACRO location1, user
 	add eax, 2; so its between 2 and 14
 	mov location1, eax; move value into the array
 	add user, eax
+	ret
 ENDM
 
 .data
@@ -25,7 +26,8 @@ currentMoney DWORD ?
 enterStartMoneyText BYTE "How much money are you gambling with today: ", 0
 myArr DWORD 21 DUP(0)
 dealerArr DWORD 21 DUP(0)
-
+winMessage BYTE "YOU WON!!: ", 0
+lossMessage BYTE "YOU LOST!!: ", 0
 playAgain BYTE "Would you like to play a hand (Enter 1 for yes, Any other number is no): ", 0
 inputRoundDollar BYTE "Enter bet: ", 0
 betInvalid BYTE "Either bet is too above your budget or is negative", 0
@@ -43,6 +45,9 @@ printDealerHandTitle BYTE "Dealer Hand: ", 0
 printMyHandTitle BYTE "My Hand: ", 0
 totalDealer DWORD 0
 totalPlayer DWORD 0
+didWin DWORD 0				;THIS VARIABLE IS A FLAG TO CHECK IF THE USER WON OR NOT, should equal 1 if they won or lost and 0 if the game will continue
+getAnotherCard BYTE "Would you like to pull another card? Press 1 to draw another and 2 otherwise: ", 0
+recursiveCheck DWORD 0				;if 0 then first round, if 1 then not the first round
 
 .code
 main proc
@@ -107,21 +112,28 @@ game PROC; asks if you want to play : ask for money input,
 
 		mov roundSpent, EAX
 
-		call dealerFirst; Gets the first card for the dealer
-		call humanMove; Gets the move from the humans.
-		call printHands
-
+		call dealerFirst					; Gets the first card for the dealer
+		call humanMove						; Gets the move from the humans.
+		mov eax, didWin
+		cmp eax, 0
+		jg endOfProgram
+		je runAgain
 
 	endOfProgram:
 		ret
+
+	runAgain:
+		;//RESET EVERYTHING HERE
+		call game
+
 game ENDP
 
 
 
-dealerFirst PROC							; Adds a card into the first slot in the dealer array
+dealerFirst PROC										; Adds a card into the first slot in the dealer array
 	mov ebx, dealerCount
 	getRandomNum dealerArr[ebx], totalDealer			; Puts a random number into the dealerArray!
-	add dealerCount, 4						; Increases the dealers lenght by 4
+	add dealerCount, 4									; Increases the dealers lenght by 4
 
 	ret
 dealerFirst ENDP
@@ -129,14 +141,49 @@ dealerFirst ENDP
 
 
 humanMove PROC
-	getRandom :
-		mov ebx, playerCount; move offset of the array into ebx
+	mov eax, recursiveCheck
+	cmp eax, 0
+	je getRandom								;if its the start of the game give the user 2 random cards
+	jg show										;if its not the start of the game
+	getRandom:
+		mov ebx, playerCount					; move offset of the array into ebx
 		getRandomNum myArr[ebx], totalPlayer
-		add playerCount, 4; move offset
+		add playerCount, 4						; move offset
 		getRandomNum myArr[ebx], totalPlayer
 		add playerCount, 4
-
-ret
+		add recursiveCheck, 1
+	show:
+		call printHands							;show thier cards
+	anotherCard:
+		mov eax, totalPlayer
+		cmp eax, 21
+		je won									;jump to win if equals 21
+		jl canDrawAgain							;if less than 21 they can draw another card
+		jg lost									;lost the game
+	won:
+		mov EDX, offset winMessage
+		call writeString						;print the win message
+		mov didWin, 1							;to skip the rest of the code and restart
+		ret
+	lost:
+		mov EDX, offset lossMessage
+		call writeString						;print the win message
+		mov didWin, 1							;to skip the rest of the code and restart
+		ret
+	canDrawAgain:
+		mov EDX, offset getAnotherCard
+		call writeString
+		call readInt
+		cmp eax, 1
+		je drawAnother							;draw another card
+		jg dealersMove							;let the dealer move so quit basically
+	drawAnother:
+		mov ebx, playerCount					;grab another card for the user
+		getRandomNum myArr[ebx], totalPlayer
+		add playerCount, 4	
+		call humanMove							;RECURSIVLEY call the function
+	dealersMove:
+		ret	
 humanMove ENDP
 
 
@@ -160,49 +207,40 @@ compareHands ENDP
 
 
 printHands PROC
-	mov EDX, OFFSET printBetty
-	call writeString
-	mov EAX, roundSpent
-	call writeDec
 	call crlf
-	call crlf
-
 	mov EDX, OFFSET printDealerHandTitle
 	call writeString
 	mov tempCount, 0
 
 	printDealer:
 		mov EBX, tempCount
-
-		push[dealerArr[ebx]]
+		push [dealerArr[ebx]]
 		call printCard
-
 		add tempCount, 4
 		mov ECX, tempCount
 		cmp ECX, dealerCount
 		jne printDealer
 
 		call crlf
-
 		mov EDX, OFFSET printMyHandTitle
 		call writeString
-
 		mov tempCount, -4
 		mov ECX, playerCount
 		sub ECX, 4
-		printPlayer:
-		mov EBX, tempCount
 
+	printPlayer:
+		mov EBX, tempCount
 		push myArr[ebx]
 		call printCard
 		add tempCount, 4
 		mov EAX, tempCount
 		cmp tempCount, ECX
 		jl printPlayer
+		jge exitFunc
 
+	exitFunc:
 		call crlf
-		call crlf
-	ret
+		ret
 printHands ENDP
 
 
@@ -215,18 +253,15 @@ printCard PROC
 	mov EBP, ESP
 	mov esi, [ebp + 8]; get the value from the stack and store it in eax
 	mov eax, esi
-
 	pop EBP
-
-
 	cmp eax, 11
 	jl noChange; if under 11 the number is the card
 	jge change; if 11 the card is not the number
 
 	noChange :
-		call writeDec; print the card
+		call writeDec							; print the card
 		mov EDX, offset space
-		call writeString; print the message
+		call writeString
 		ret
 	change :
 		cmp eax, 11
