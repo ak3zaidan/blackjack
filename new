@@ -9,7 +9,7 @@ getRandomNum MACRO location1, user
 	mov eax, 13; upper bound
 	call RandomRange; lower bound
 	add eax, 2; so its between 2 and 14
-	mov location1, eax; move value into the array
+	mov [location1], eax; move value into the array
 	add user, eax
 ENDM
 
@@ -38,7 +38,6 @@ queen BYTE "QUEEN", 0
 king BYTE "KING", 0
 ace BYTE "ACE", 0
 space BYTE "   ", 0
-tempCount DWORD 0
 printBetty BYTE "Current Bet: ", 0
 printDealerHandTitle BYTE "Dealer Hand: ", 0
 printMyHandTitle BYTE "My Hand: ", 0
@@ -46,7 +45,6 @@ totalDealer DWORD 0
 totalPlayer DWORD 0
 didWin DWORD 0				;THIS VARIABLE IS A FLAG TO CHECK IF THE USER WON OR NOT, should equal 1 if they won or lost and 0 if the game will continue
 getAnotherCard BYTE "Would you like to pull another card? Press 1 to draw another and 2 otherwise: ", 0
-recursiveCheck DWORD 0				;if 0 then first round, if 1 then not the first round
 
 .code
 main proc
@@ -74,11 +72,10 @@ userInput PROC
 	mov EDX, OFFSET enterStartMoneyText
 	call writeString
 	call readInt
-	mov[esi], eax
+	mov [esi], eax
 	pop EBP
 	ret
 userInput ENDP
-
 
 
 
@@ -139,18 +136,16 @@ dealerFirst ENDP
 
 
 
-humanMove PROC  ; Take out recursion, have it jump to show
-	mov eax, recursiveCheck
-	cmp eax, 0
-	je getRandom								;if its the start of the game give the user 2 random cards
-	jg show										;if its not the start of the game
+humanMove PROC
 	getRandom:
-		mov ebx, playerCount					; move offset of the array into ebx
-		getRandomNum myArr[ebx], totalPlayer
+		mov ESI, offset myArr
+		push ESI
+		getRandomNum ESI, totalPlayer
 		add playerCount, 4						; move offset
-		getRandomNum myArr[ebx], totalPlayer
+		mov ebx, playerCount
+		add ESI, 4
+		getRandomNum ESI, totalPlayer
 		add playerCount, 4
-		add recursiveCheck, 1
 	show:
 		call printHands							;show thier cards
 	anotherCard:
@@ -160,16 +155,19 @@ humanMove PROC  ; Take out recursion, have it jump to show
 		jl canDrawAgain							;if less than 21 they can draw another card
 		jg lost									;lost the game
 	won:
+		call Crlf
 		mov EDX, offset winMessage
 		call writeString						;print the win message
 		mov didWin, 1							;to skip the rest of the code and restart
 		ret
 	lost:
+		call Crlf
 		mov EDX, offset lossMessage
 		call writeString						;print the win message
 		mov didWin, 1							;to skip the rest of the code and restart
 		ret
 	canDrawAgain:
+		call Crlf
 		mov EDX, offset getAnotherCard
 		call writeString
 		call readInt
@@ -178,9 +176,11 @@ humanMove PROC  ; Take out recursion, have it jump to show
 		jg dealersMove							;let the dealer move so quit basically
 	drawAnother:
 		mov ebx, playerCount					;grab another card for the user
-		getRandomNum myArr[ebx], totalPlayer
+		mov ESI, offset myArr
+		add ESI, ebx
+		getRandomNum ESI, totalPlayer
 		add playerCount, 4	
-		call humanMove							;RECURSIVLEY call the function
+		jmp show
 	dealersMove:
 		ret	
 humanMove ENDP
@@ -205,43 +205,42 @@ compareHands ENDP
 
 
 
-printHands PROC
+printHands PROC	
 	call crlf
 	mov EDX, OFFSET printDealerHandTitle
 	call writeString
-	mov tempCount, 0
-
-	printDealer:
-		mov EBX, tempCount
-		push [dealerArr[ebx]]
+	
+	mov ecx, 15
+	mov ebx, 0
+	myLoop:
+		mov ESI, offset dealerArr
+		mov eax, [ESI + ebx]
+		cmp eax, 0
+		je printUser
+		push eax
 		call printCard
-		add tempCount, 4
-		mov ECX, tempCount
-		cmp ECX, dealerCount
-		jne printDealer
+		add EBX, 4
+		loop myLoop
 
+	printUser:
+		mov ebx, 0
+		mov ecx, 15
 		call crlf
 		mov EDX, OFFSET printMyHandTitle
 		call writeString
-		mov tempCount, -4
-		mov ECX, playerCount
-		sub ECX, 4
+		myLoopSec:
+			mov ESI, offset myArr
+			mov eax, [ESI + EBX]
+			cmp eax, 0
+			je done
+			push eax
+			call printCard
+			add EBX, 4
+			loop myLoopSec
 
-	printPlayer:
-		mov EBX, tempCount
-		push myArr[ebx]
-		call printCard
-		add tempCount, 4
-		mov EAX, tempCount
-		cmp tempCount, ECX
-		jl printPlayer
-		jge exitFunc
-
-	exitFunc:
-		call crlf
+	done:
 		ret
 printHands ENDP
-
 
 
 
@@ -327,3 +326,4 @@ floatingExample PROC
 floatingExample ENDP
 
 end main
+
