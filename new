@@ -139,7 +139,7 @@ dealerFirst ENDP
 
 
 
-humanMove PROC
+humanMove PROC  ; Take out recursion, have it jump to show
 	mov eax, recursiveCheck
 	cmp eax, 0
 	je getRandom								;if its the start of the game give the user 2 random cards
