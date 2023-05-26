@@ -9,8 +9,8 @@ getRandomNum MACRO location1, user
 	mov eax, 13; upper bound
 	call RandomRange; lower bound
 	add eax, 2; so its between 2 and 14
-	mov [location1], eax; move value into the array
-	add user, eax
+	mov[location1], eax; move value into the array
+add user, eax
 ENDM
 
 .data
@@ -43,22 +43,22 @@ printDealerHandTitle BYTE "Dealer Hand: ", 0
 printMyHandTitle BYTE "My Hand: ", 0
 totalDealer DWORD 0
 totalPlayer DWORD 0
-didWin DWORD 0				;THIS VARIABLE IS A FLAG TO CHECK IF THE USER WON OR NOT, should equal 1 if they won or lost and 0 if the game will continue
+didWin DWORD 0; THIS VARIABLE IS A FLAG TO CHECK IF THE USER WON OR NOT, should equal 1 if they won or lost and 0 if the game will continue
 getAnotherCard BYTE "Would you like to pull another card? Press 1 to draw another and 2 otherwise: ", 0
 
 .code
 main proc
-	call randomize
+call randomize
 
-	getUserInfo :
-		push OFFSET currentMoney
-		call userInput
+getUserInfo :
+	push OFFSET currentMoney
+	call userInput
 
 	playGame :
-		call game
+	call game
 
 	fpuExample :
-		call floatingExample
+	call floatingExample
 
 	exit
 main endp
@@ -72,7 +72,7 @@ userInput PROC
 	mov EDX, OFFSET enterStartMoneyText
 	call writeString
 	call readInt
-	mov [esi], eax
+	mov[esi], eax
 	pop EBP
 	ret
 userInput ENDP
@@ -89,86 +89,86 @@ game PROC; asks if you want to play : ask for money input,
 	jne endOfProgram
 	jmp getRoundMoney
 
-	invalidInput :
-		mov EDX, OFFSET betInvalid
-		call writeString
-		call crlf
+invalidInput :
+	mov EDX, OFFSET betInvalid
+	call writeString
+	call crlf
 
 
-	getRoundMoney :
-		mov EDX, OFFSET inputRoundDollar
-		call writeString
-		call readInt
-		call crlf
+getRoundMoney :
+	mov EDX, OFFSET inputRoundDollar
+	call writeString
+	call readInt
+	call crlf
 
-		cmp EAX, currentMoney
-		jg invalidInput
-		cmp EAX, 0
-		jle invalidInput
+	cmp EAX, currentMoney
+	jg invalidInput
+	cmp EAX, 0
+	jle invalidInput
 
-		mov roundSpent, EAX
+mov roundSpent, EAX
 
-		call dealerFirst					; Gets the first card for the dealer
-		call humanMove						; Gets the move from the humans.
-		mov eax, didWin
-		cmp eax, 0
-		jg endOfProgram
-		je runAgain
+	call dealerFirst; Gets the first card for the dealer
+	call humanMove; Gets the move from the humans.
+	mov eax, didWin
+	cmp eax, 0
+	jg endOfProgram
+	je runAgain
 
-	endOfProgram:
-		ret
+endOfProgram :
+	ret
 
-	runAgain:
+runAgain :
 
-		mov eax, 69
-		call writeInt
+	mov eax, 69
+	call writeInt
 
-		mov roundSpent, 0				;//reset everything before recursivley calling the function
-		mov currentMoney, 0
-		mov didWin, 0
-		mov totalDealer, 0
-		mov totalPlayer, 0
-		mov playerCount, 0
-		mov dealerCount, 0
+	mov roundSpent, 0;//reset everything before recursivley calling the function
+	mov currentMoney, 0
+	mov didWin, 0
+	mov totalDealer, 0
+	mov totalPlayer, 0
+	mov playerCount, 0
+	mov dealerCount, 0
 
-		mov eax, 70
-		call writeInt
+	mov eax, 70
+	call writeInt
 
-		mov eax, 0
-		resetDealerArr:
-			mov ebx, 0
-			mov ecx, 15
-			mov ESI, offset dealerArr
-			loopTwo:
-				mov [ESI + EBX], EAX
-				add EBX, 4
-				loop loopTwo
+	mov eax, 0
+resetDealerArr:
+	mov ebx, 0
+	mov ecx, 15
+	mov ESI, offset dealerArr
+	loopTwo :
+	mov[ESI + EBX], EAX
+	add EBX, 4
+	loop loopTwo
 
-		resetPlayerArr:
-			mov ebx, 0
-			mov ecx, 15
-			mov ESI, offset myArr
-			loopOne:
-				mov [ESI + EBX], EAX
-				add EBX, 4
-				loop loopOne
+resetPlayerArr :
+	mov ebx, 0
+	mov ecx, 15
+	mov ESI, offset myArr
+	loopOne :
+	mov[ESI + EBX], EAX
+	add EBX, 4
+	loop loopOne
 
-		mov eax, 71
-		call writeInt
+	mov eax, 71
+	call writeInt
 
-		call CRLF
-		call CRLF
-		call CRLF
-		call game						;recursive call
+	call CRLF
+	call CRLF
+	call CRLF
+	call game; recursive call
 
 game ENDP
 
 
 
-dealerFirst PROC										; Adds a card into the first slot in the dealer array
+dealerFirst PROC; Adds a card into the first slot in the dealer array
 	mov ebx, dealerCount
-	getRandomNum dealerArr[ebx], totalDealer			; Puts a random number into the dealerArray!
-	add dealerCount, 4									; Increases the dealers lenght by 4
+	getRandomNum dealerArr[ebx], totalDealer; Puts a random number into the dealerArray!
+	add dealerCount, 4; Increases the dealers lenght by 4
 
 	ret
 dealerFirst ENDP
@@ -176,76 +176,79 @@ dealerFirst ENDP
 
 
 humanMove PROC
-	getRandom:
-		mov ESI, offset myArr
-		push ESI
-		getRandomNum ESI, totalPlayer
-		add playerCount, 4						; move offset
-		mov ebx, playerCount
-		add ESI, 4
-		getRandomNum ESI, totalPlayer
-		add playerCount, 4
-	show:
-		call printHands							;show thier cards
 
-	anotherCard:
-		mov eax, totalPlayer
-		cmp eax, 21
-		je won									;jump to win if equals 21
-		jl canDrawAgain							;if less than 21 they can draw another card
-		jg lost									;lost the game
-	won:
-		call Crlf
-		mov EDX, offset winMessage
-		call writeString						;print the win message
-		call Crlf
-		call Crlf
+getRandom :
+	mov ESI, offset myArr
+	push ESI
+	getRandomNum ESI, totalPlayer
+	add playerCount, 4; move offset
+	mov ebx, playerCount
+	add ESI, 4
+	getRandomNum ESI, totalPlayer
+	add playerCount, 4
+show:
+	call printHands; show thier cards
 
-		mov EDX, offset updatedMoney		;--------------------
-		call writeString					;This section is to update the users money and display it
-		mov EAX, currentMoney
-		mov EBX, roundSpent
-		add EAX, EBX
-		call writeInt
-		mov currentMoney, EAX				;--------------------
+anotherCard :
+	mov eax, totalPlayer
+	cmp eax, 21
+	je won; jump to win if equals 21
+	jl canDrawAgain; if less than 21 they can draw another card
+	jg lost; lost the game
+	won :
+	call Crlf
+	mov EDX, offset winMessage
+	call writeString; print the win message
+	call Crlf
+	call Crlf
 
-		call Crlf
-		mov didWin, 1							;to skip the rest of the code and restart
-		ret
-	lost:
-		call Crlf
-		mov EDX, offset lossMessage
-		call writeString						;print the win message
-		call Crlf
-		call Crlf
+	mov EDX, offset updatedMoney; --------------------
+	call writeString; This section is to update the users money and display it
+	mov EAX, currentMoney
+	mov EBX, roundSpent
+	add EAX, EBX
+	call writeInt
+	mov currentMoney, EAX; --------------------
 
-		mov EDX, offset updatedMoney		;--------------------
-		call writeString					;This section is to update the users money and display it
-		mov EAX, currentMoney
-		mov EBX, roundSpent
-		sub EAX, EBX
-		call writeInt
-		mov currentMoney, EAX				;--------------------
-		
-		mov didWin, 1							;to skip the rest of the code and restart
-		ret 
-	canDrawAgain:
-		call Crlf
-		mov EDX, offset getAnotherCard
-		call writeString
-		call readInt
-		cmp eax, 1
-		je drawAnother							;draw another card
-		jg dealersMove							;let the dealer move so quit basically
-	drawAnother:
-		mov ebx, playerCount					;grab another card for the user
-		mov ESI, offset myArr
-		add ESI, ebx
-		getRandomNum ESI, totalPlayer
-		add playerCount, 4	
-		jmp show
-	dealersMove:
-		ret	
+	call Crlf
+	mov didWin, 1; to skip the rest of the code and restart
+ret
+lost :
+	call Crlf
+	mov EDX, offset lossMessage
+	call writeString; print the win message
+	call Crlf
+	call Crlf
+
+	mov EDX, offset updatedMoney; --------------------
+	call writeString; This section is to update the users money and display it
+	mov EAX, currentMoney
+	mov EBX, roundSpent
+	sub EAX, EBX
+	call writeInt
+	mov currentMoney, EAX; --------------------
+
+	mov didWin, 1; to skip the rest of the code and restart
+
+ret
+canDrawAgain :
+	call Crlf
+	mov EDX, offset getAnotherCard
+	call writeString
+	call readInt
+	cmp eax, 1
+	je drawAnother; draw another card
+	jg dealersMove; let the dealer move so quit basically
+drawAnother :
+	mov ebx, playerCount; grab another card for the user
+	mov ESI, offset myArr
+	add ESI, ebx
+	getRandomNum ESI, totalPlayer
+	add playerCount, 4
+	jmp show
+dealersMove :
+
+ret
 humanMove ENDP
 
 
@@ -254,56 +257,60 @@ humanMove ENDP
 
 
 dealerMove PROC
-	ret
+ret
 dealerMove ENDP
 
 
 
 
 compareHands PROC
-	ret
+ret
 compareHands ENDP
 
 
 
 
 
-printHands PROC	
+printHands PROC
+
+	pushad
 	call crlf
 	mov EDX, OFFSET printDealerHandTitle
 	call writeString
-	
+
 	mov ecx, 15
 	mov ebx, 0
 	myLoop:
-		mov ESI, offset dealerArr
-		mov eax, [ESI + ebx]
-		cmp eax, 0
-		je printUser
-		push eax
-		call printCard
-		add EBX, 4
-		loop myLoop
+	mov ESI, offset dealerArr
+	mov eax, [ESI + ebx]
+	cmp eax, 0
+	je printUser
+	push eax
+	call printCard
+	add EBX, 4
+	loop myLoop
 
-	printUser:
-		mov ebx, 0
-		mov ecx, 15
-		call crlf
-		mov EDX, OFFSET printMyHandTitle
-		call writeString
-		myLoopSec:
-			mov ESI, offset myArr
-			mov eax, [ESI + EBX]
-			cmp eax, 0
-			je done
-			push eax
-			call printCard
-			add EBX, 4
-			loop myLoopSec
+printUser :
+	mov ebx, 0
+	mov ecx, 15
+	call crlf
+	mov EDX, OFFSET printMyHandTitle
+	call writeString
+	myLoopSec :
+	mov ESI, offset myArr
+	mov eax, [ESI + EBX]
+	cmp eax, 0
+	je done
+	push eax
+	call printCard
+	add EBX, 4
+	loop myLoopSec
 
-	done:
-		ret
-printHands ENDP
+done :
+	popad
+	pop EBP
+	ret 
+	printHands ENDP
 
 
 
@@ -319,43 +326,43 @@ printCard PROC
 	jl noChange; if under 11 the number is the card
 	jge change; if 11 the card is not the number
 
-	noChange :
-		call writeDec							; print the card
-		mov EDX, offset space
-		call writeString
-		ret
-	change :
-		cmp eax, 11
-		je jackSec; equals jack jump to jack
-		cmp eax, 12
-		je queenSec; equals qeueen jump to queen
-		cmp eax, 13
-		je kingsec; equals king jump to king
-		jg aceSec; otherwise jump to ace
-	jackSec :
-		mov EDX, offset jack
-		call writeString
-		mov EDX, offset space
-		call writeString
-		ret
-	queenSec :
-		mov EDX, offset queen
-		call writeString
-		mov EDX, offset space
-		call writeString
-		ret
-	kingSec :
-		mov EDX, offset king
-		call writeString
-		mov EDX, offset space
-		call writeString
-		ret
-	aceSec :
-		mov EDX, offset ace
-		call writeString
-		mov EDX, offset space
-		call writeString
-		ret
+noChange :
+	call writeDec; print the card
+	mov EDX, offset space
+	call writeString
+	ret
+change :
+	cmp eax, 11
+	je jackSec; equals jack jump to jack
+	cmp eax, 12
+	je queenSec; equals qeueen jump to queen
+	cmp eax, 13
+	je kingsec; equals king jump to king
+	jg aceSec; otherwise jump to ace
+jackSec :
+	mov EDX, offset jack
+	call writeString
+	mov EDX, offset space
+	call writeString
+	ret
+queenSec :
+	mov EDX, offset queen
+	call writeString
+	mov EDX, offset space
+	call writeString
+	ret
+kingSec :
+	mov EDX, offset king
+	call writeString
+	mov EDX, offset space
+	call writeString
+ret
+aceSec :
+	mov EDX, offset ace
+	call writeString
+	mov EDX, offset space
+	call writeString
+ret
 printCard ENDP
 
 
@@ -386,7 +393,6 @@ floatingExample PROC
 	fld kmPerMile
 	invoke WriteFloat
 	fstp st(0)
-floatingExample ENDP
+	floatingExample ENDP
 
 end main
-
