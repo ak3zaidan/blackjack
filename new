@@ -10,7 +10,7 @@ getRandomNum MACRO location1, user
 	call RandomRange; lower bound
 	add eax, 2; so its between 2 and 14
 	mov[location1], eax; move value into the array
-add user, eax
+	add user, eax
 ENDM
 
 .data
@@ -48,13 +48,13 @@ getAnotherCard BYTE "Would you like to pull another card? Press 1 to draw anothe
 
 .code
 main proc
-call randomize
+	call randomize
 
 getUserInfo :
 	push OFFSET currentMoney
 	call userInput
 
-	playGame :
+playGame :
 	call game
 
 	fpuExample :
@@ -106,17 +106,26 @@ getRoundMoney :
 	cmp EAX, 0
 	jle invalidInput
 
-mov roundSpent, EAX
+	mov roundSpent, EAX
 
 	call dealerFirst; Gets the first card for the dealer
 	call humanMove; Gets the move from the humans.
 	mov eax, didWin
 	cmp eax, 0
+
+	call crlf
+	call writeInt
+	call crlf
+
+	call crlf
+	call writeInt
+
+	call crlf
 	jg endOfProgram
 	je runAgain
 
-endOfProgram :
-	ret
+	endOfProgram :
+ret
 
 runAgain :
 
@@ -135,7 +144,7 @@ runAgain :
 	call writeInt
 
 	mov eax, 0
-resetDealerArr:
+	resetDealerArr:
 	mov ebx, 0
 	mov ecx, 15
 	mov ESI, offset dealerArr
@@ -165,12 +174,12 @@ game ENDP
 
 
 
-dealerFirst PROC; Adds a card into the first slot in the dealer array
+	dealerFirst PROC; Adds a card into the first slot in the dealer array
 	mov ebx, dealerCount
 	getRandomNum dealerArr[ebx], totalDealer; Puts a random number into the dealerArray!
 	add dealerCount, 4; Increases the dealers lenght by 4
 
-	ret
+ret
 dealerFirst ENDP
 
 
@@ -187,7 +196,43 @@ getRandom :
 	getRandomNum ESI, totalPlayer
 	add playerCount, 4
 show:
-	call printHands; show thier cards
+
+	call crlf
+	mov EDX, OFFSET printDealerHandTitle
+	call writeString
+
+	mov ecx, 15
+	mov ebx, 0
+	myLoop:
+	mov ESI, offset dealerArr
+	mov eax, [ESI + ebx]
+	cmp eax, 0
+	je printUser
+	push eax
+	call printCard
+	add EBX, 4
+	loop myLoop
+
+printUser :
+	mov ebx, 0
+	mov ecx, 15
+	call crlf
+	mov EDX, OFFSET printMyHandTitle
+	call writeString
+	myLoopSec :
+	mov ESI, offset myArr
+	mov eax, [ESI + EBX]
+	cmp eax, 0
+	je done
+	push eax
+	call printCard
+	add EBX, 4
+	loop myLoopSec
+
+done :
+
+
+
 
 anotherCard :
 	mov eax, totalPlayer
@@ -206,14 +251,14 @@ anotherCard :
 	call writeString; This section is to update the users money and display it
 	mov EAX, currentMoney
 	mov EBX, roundSpent
-	add EAX, EBX
+	add EAX, roundSpent
 	call writeInt
 	mov currentMoney, EAX; --------------------
 
 	call Crlf
 	mov didWin, 1; to skip the rest of the code and restart
-ret
-lost :
+	jmp return1
+	lost :
 	call Crlf
 	mov EDX, offset lossMessage
 	call writeString; print the win message
@@ -224,15 +269,17 @@ lost :
 	call writeString; This section is to update the users money and display it
 	mov EAX, currentMoney
 	mov EBX, roundSpent
-	sub EAX, EBX
+	sub EAX, roundSPent
 	call writeInt
 	mov currentMoney, EAX; --------------------
 
 	mov didWin, 1; to skip the rest of the code and restart
 
-ret
+
+	jmp return1
 canDrawAgain :
 	call Crlf
+	call CRLF
 	mov EDX, offset getAnotherCard
 	call writeString
 	call readInt
@@ -248,6 +295,9 @@ drawAnother :
 	jmp show
 dealersMove :
 
+
+
+return1:
 ret
 humanMove ENDP
 
@@ -307,10 +357,9 @@ printUser :
 	loop myLoopSec
 
 done :
-	popad
-	pop EBP
-	ret 
-	printHands ENDP
+popad
+ret
+printHands ENDP
 
 
 
@@ -330,8 +379,8 @@ noChange :
 	call writeDec; print the card
 	mov EDX, offset space
 	call writeString
-	ret
-change :
+	jmp return2
+	change :
 	cmp eax, 11
 	je jackSec; equals jack jump to jack
 	cmp eax, 12
@@ -340,28 +389,30 @@ change :
 	je kingsec; equals king jump to king
 	jg aceSec; otherwise jump to ace
 jackSec :
-	mov EDX, offset jack
+mov EDX, offset jack
 	call writeString
 	mov EDX, offset space
 	call writeString
-	ret
+	jmp return2
 queenSec :
 	mov EDX, offset queen
 	call writeString
 	mov EDX, offset space
 	call writeString
-	ret
+	jmp return2
 kingSec :
 	mov EDX, offset king
 	call writeString
 	mov EDX, offset space
 	call writeString
-ret
+	jmp return2
 aceSec :
 	mov EDX, offset ace
 	call writeString
 	mov EDX, offset space
 	call writeString
+
+return2: 
 ret
 printCard ENDP
 
@@ -370,29 +421,29 @@ printCard ENDP
 
 
 floatingExample PROC
-	mov edx, offset greeting
-	invoke WriteString
-	call Crlf; print newline
-	finit;//iniit the fpu
-	mov edx, offset myMessage2
-	invoke WriteString; print message2
-	call readFloat
-	fst dist
-	fstp st(0);//clear
-	fld dist;//load the distance into the stack
-	fld distConst;//load the distance constant for conversion
-	fmul
-	fst kmPerMile;//pop into this var
-	fstp st(0);//clear
-	call Crlf; print newline
-	fld dist
-	call writeFloat
-	fstp st(0)
-	mov edx, offset myMessage5
-	invoke WriteString
-	fld kmPerMile
-	invoke WriteFloat
-	fstp st(0)
-	floatingExample ENDP
+mov edx, offset greeting
+invoke WriteString
+call Crlf; print newline
+finit;//iniit the fpu
+mov edx, offset myMessage2
+invoke WriteString; print message2
+call readFloat
+fst dist
+fstp st(0);//clear
+fld dist;//load the distance into the stack
+fld distConst;//load the distance constant for conversion
+fmul
+fst kmPerMile;//pop into this var
+fstp st(0);//clear
+call Crlf; print newline
+fld dist
+call writeFloat
+fstp st(0)
+mov edx, offset myMessage5
+invoke WriteString
+fld kmPerMile
+invoke WriteFloat
+fstp st(0)
+floatingExample ENDP
 
 end main
