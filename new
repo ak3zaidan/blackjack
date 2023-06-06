@@ -180,10 +180,10 @@ game PROC; asks if you want to play : ask for money input,
 				call writeString
 				call readInt
 				cmp eax, 1
-				je runAgain
+				je restart
 				jmp endOfProgram
 
-	runAgain :
+	restart :
 		mov roundSpent, 0;			//reset everything before recursivley calling the function
 		mov currentMoney, 0
 		mov didWin, 0
