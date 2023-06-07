@@ -1,3 +1,5 @@
+;completed by Ahmed Zaidan and Blaise, blackjack game
+
 include irvine32.inc
 
 .stack 4096
@@ -28,7 +30,7 @@ dealerArr DWORD 21 DUP(0)
 winMessage BYTE "YOU WON!!: ", 0
 lossMessage BYTE "YOU LOST!!: ", 0
 updatedMoney BYTE "Your new balance is: ", 0
-playAgain BYTE "Would you like to play a hand (Enter 1 for yes, Any other number is no): ", 0
+playAgain BYTE "Would you like to play a hand (Enter 1 for yes, And 0 for no): ", 0
 inputRoundDollar BYTE "Enter bet: ", 0
 betInvalid BYTE "Either bet is too above your budget or is negative", 0
 roundSpent DWORD ?
@@ -103,13 +105,13 @@ resetAllArr ENDP
 
 
 
-game PROC; asks if you want to play : ask for money input,
-	mov EDX, OFFSET playAgain
-	call writeString
-	call readInt
-	call crlf
-	cmp EAX, 1
-	jne endOfProgram
+game PROC						; asks if you want to play : ask for money input,
+	;mov EDX, OFFSET playAgain
+	;call writeString
+	;call readInt
+	;call crlf
+	;cmp EAX, 1
+	;jne endOfProgram
 	jmp getRoundMoney
 
 	invalidInput :
@@ -130,18 +132,18 @@ game PROC; asks if you want to play : ask for money input,
 
 		mov roundSpent, EAX
 
-		call dealerFirst; Gets the first card for the dealer
-		call humanMove; Gets the move from the humans.
+		call dealerFirst;				Gets the first card for the dealer
+		call humanMove;					 Gets the move from the humans.
 		mov eax, didWin
 		cmp eax, 0
-		jg playMore			;the user won or lost so start a new game if the user wants to
-		call dealerSecond	; let the dealer pick more cards
+		jg playMore						;the user won or lost so start a new game if the user wants to
+		call dealerSecond				; let the dealer pick more cards
 
-		mov eax, totalDealer		; dealer went over 21 so the auto lose
+		mov eax, totalDealer			; dealer went over 21 so the auto lose
 		cmp eax, 21
 		jg theUserWon
 		
-		mov eax, totalPlayer		; the card drawing is done so compare the user and the dealer
+		mov eax, totalPlayer			; the card drawing is done so compare the user and the dealer
 		mov ecx, totalDealer
 		cmp eax, ecx
 		jl theDealerWon
@@ -149,10 +151,26 @@ game PROC; asks if you want to play : ask for money input,
 		theUserWon:
 			mov edx, offset winMessage
 			call writeString
+			call crlf
+			mov EDX, offset updatedMoney; --------------------
+			call writeString					; This section is to update the users money and display it
+			mov EAX, currentMoney
+			mov EBX, roundSpent
+			add EAX, EBX
+			call writeInt
+			mov currentMoney, EAX; --------------------
 			jmp playMore
 		theDealerWon:
 			mov edx, offset lossMessage
 			call writeString
+			call Crlf
+			mov EDX, offset updatedMoney				; --------------------
+			call writeString						; This section is to update the users money and display it
+			mov EAX, currentMoney
+			mov EBX, roundSpent
+			sub EAX, EBX
+			call writeInt
+			mov currentMoney, EAX					; --------------------
 
 		playMore:
 			call crlf			;either the user can play another round because they have gambling money left or their broke and the game is over
@@ -174,6 +192,11 @@ game PROC; asks if you want to play : ask for money input,
 				call crlf
 				call crlf
 				call crlf
+				mov didWin, 0
+				mov playerCount, 0
+				mov dealerCount, 0
+				mov totalDealer, 0
+				mov totalPlayer, 0
 				jmp getRoundMoney
 			noMoneyLeft:
 				mov EDX, offset gameOver
@@ -217,10 +240,9 @@ dealerFirst ENDP
 
 dealerSecond PROC
 	getRandom:
-		mov ESI, offset dealerArr
-		getRandomNum ESI, totalDealer
+		mov ebx, dealerCount
+		getRandomNum dealerArr[ebx], totalDealer
 		add dealerCount, 4; move offset
-		add ESI, 4
 
 		mov eax, totalDealer
 		cmp eax, 17					;if they have less than 17 let the dealer draw again, if they have more display their cards
@@ -262,7 +284,7 @@ humanMove PROC
 		call Crlf
 
 		mov EDX, offset updatedMoney; --------------------
-		call writeString; This section is to update the users money and display it
+		call writeString					; This section is to update the users money and display it
 		mov EAX, currentMoney
 		mov EBX, roundSpent
 		add EAX, EBX
@@ -270,24 +292,24 @@ humanMove PROC
 		mov currentMoney, EAX; --------------------
 
 		call Crlf
-		mov didWin, 1; to skip the rest of the code and restart
+		mov didWin, 1						; to skip the rest of the code and restart
 		jmp return1
 	lost :
 		call Crlf
 		mov EDX, offset lossMessage
-		call writeString; print the win message
+		call writeString					; print the win message
 		call Crlf
 		call Crlf
 
-		mov EDX, offset updatedMoney; --------------------
-		call writeString; This section is to update the users money and display it
+		mov EDX, offset updatedMoney				; --------------------
+		call writeString						; This section is to update the users money and display it
 		mov EAX, currentMoney
 		mov EBX, roundSpent
 		sub EAX, EBX
 		call writeInt
-		mov currentMoney, EAX; --------------------
+		mov currentMoney, EAX					; --------------------
 
-		mov didWin, 1; to skip the rest of the code and restart
+		mov didWin, 1						; to skip the rest of the code and restart
 		jmp return1
 	canDrawAgain :
 		call Crlf
@@ -296,17 +318,15 @@ humanMove PROC
 		call writeString
 		call readInt
 		cmp eax, 1
-		je drawAnother; draw another card
-		jg dealersMove; let the dealer move so quit basically
+		je drawAnother						; draw another card
+		jg return1						; let the dealer move so quit basically
 	drawAnother :
-		mov ebx, playerCount; grab another card for the user
+		mov ebx, playerCount			; grab another card for the user
 		mov ESI, offset myArr
 		add ESI, ebx
 		getRandomNum ESI, totalPlayer
 		add playerCount, 4
 		jmp show
-	dealersMove :
-
 	return1:
 		ret
 humanMove ENDP
