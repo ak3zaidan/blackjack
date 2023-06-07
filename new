@@ -106,12 +106,6 @@ resetAllArr ENDP
 
 
 game PROC						; asks if you want to play : ask for money input,
-	;mov EDX, OFFSET playAgain
-	;call writeString
-	;call readInt
-	;call crlf
-	;cmp EAX, 1
-	;jne endOfProgram
 	jmp getRoundMoney
 
 	invalidInput :
