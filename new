@@ -101,7 +101,8 @@ resetAllArr PROC
 	loopOneX :
 		mov[ESI + EBX], EAX
 		add EBX, 4
-		loop loopOneX		
+		loop loopOneX	
+	ret
 resetAllArr ENDP
 
 
